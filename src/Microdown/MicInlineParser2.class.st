@@ -120,7 +120,7 @@ MicInlineParser2 class >> magicCharacter [
 	^ 16r100000 "Private Use Area-B"
 ]
 
-{ #category : #accessing }
+{ #category : #parsing }
 MicInlineParser2 >> atBeginDelimiter [
 	"return openingDelimiter or nil."
 	| allBeginDelimiters maxOpenerLength peek |
@@ -143,7 +143,7 @@ MicInlineParser2 >> parse: aString [
 	^ self parseEndAt: nil
 ]
 
-{ #category : #parsing }
+{ #category : #'block parsing' }
 MicInlineParser2 >> parseBold [
 	| boldChildren |
 	MicBoldDelimiter markup size timesRepeat: [ inlineStream next ].
@@ -175,7 +175,7 @@ MicInlineParser2 >> parseInlineBlock [
 	^ peekedDelimiter parseInline: self
 ]
 
-{ #category : #parsing }
+{ #category : #'block parsing' }
 MicInlineParser2 >> parseItalics [
 	| boldChildren |
 	MicItalicDelimiter markup size timesRepeat: [ inlineStream next ].
@@ -185,7 +185,7 @@ MicInlineParser2 >> parseItalics [
 		children: boldChildren 
 ]
 
-{ #category : #parsing }
+{ #category : #'block parsing' }
 MicInlineParser2 >> parseLink [
 	| children url link split title|
 	MicLinkNameOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
@@ -208,7 +208,7 @@ MicInlineParser2 >> parseLink [
 	
 ]
 
-{ #category : #parsing }
+{ #category : #'block parsing' }
 MicInlineParser2 >> parseUrl [
 	| body |
 	MicURLOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
@@ -217,7 +217,7 @@ MicInlineParser2 >> parseUrl [
 	^ body
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #parsing }
 MicInlineParser2 >> seekTo: closingMarkup [
 	"read inlineStream upto first delimiter"
 	| buffer peekLength |
@@ -231,7 +231,7 @@ MicInlineParser2 >> seekTo: closingMarkup [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #parsing }
 MicInlineParser2 >> seekToDelimiter [
 	"read inlineStream upto first delimiter"
 	| buffer|
