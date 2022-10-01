@@ -32,6 +32,11 @@ MicURLOpenerDelimiter class >> markup [
 	^ URLOpenerMarkup
 ]
 
+{ #category : #parsing }
+MicURLOpenerDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseUrl
+]
+
 { #category : #accessing }
 MicURLOpenerDelimiter class >> type [
 	^ #url

@@ -27,6 +27,11 @@ MicBoldDelimiter class >> markup [
 	^ BoldMarkup
 ]
 
+{ #category : #parsing }
+MicBoldDelimiter class >> parseInline: inlineParser [
+	^ inlineParser parseBold
+]
+
 { #category : #accessing }
 MicBoldDelimiter class >> type [
 	^ #bold

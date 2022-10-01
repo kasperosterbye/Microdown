@@ -22,6 +22,13 @@ MicMonospaceFormatBlock >> cleanSubstring [
 	self substring: (MicInlineParser escapeReescape: self substring except: '`')
 ]
 
+{ #category : #visiting }
+MicMonospaceFormatBlock >> closeMe [
+	self substring: (MicInlineParser escapeReescape: self substring except: '`').
+	super closeMe.
+
+]
+
 { #category : #internal }
 MicMonospaceFormatBlock >> closingDelimiter [
 

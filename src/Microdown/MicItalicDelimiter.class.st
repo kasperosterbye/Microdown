@@ -27,6 +27,11 @@ MicItalicDelimiter class >> markup [
 	^ ItalicMarkup
 ]
 
+{ #category : #parsing }
+MicItalicDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseItalics 
+]
+
 { #category : #accessing }
 MicItalicDelimiter class >> type [
 	^ #italic

@@ -16,7 +16,7 @@ MicFigureNameOpenerDelimiter class >> associatedInlineBlock [
 MicFigureNameOpenerDelimiter class >> associatedTypes [
 
 	^ {  
-		MicLinkNameDelimiter type.
+		MicLinkNameDelimiterShouldBeDeleted type.
 		self type.
 	}
 ]

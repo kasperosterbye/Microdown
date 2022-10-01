@@ -375,7 +375,7 @@ MicInlineParser >> linkOrFigureProcess: indexOfAssociateOpener [
 MicInlineParser >> newBasicInlineBlockFrom: stIndex to: eIndex [
 	| text |
 	
-	text := string copyFrom: stIndex to: eIndex.
+	text := string copyFrom: stIndex to: eIndex .
 	^ self elementBlockClass
 		from: stIndex
 		to: eIndex

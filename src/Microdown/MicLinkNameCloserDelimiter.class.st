@@ -3,7 +3,7 @@ I am the closer delimiter for link name.
 "
 Class {
 	#name : #MicLinkNameCloserDelimiter,
-	#superclass : #MicLinkNameDelimiter,
+	#superclass : #MicAbstractDelimiter,
 	#category : #'Microdown-Parser'
 }
 

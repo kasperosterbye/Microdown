@@ -34,7 +34,7 @@ MacLineBreakDelimiter class >> isOpener [
 { #category : #accessing }
 MacLineBreakDelimiter class >> markup [
 
-	^ #lineBreak
+	^ '§'
 ]
 
 { #category : #testing }
