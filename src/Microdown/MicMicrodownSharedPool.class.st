@@ -25,7 +25,7 @@ Class {
 		'HeaderMarkup',
 		'HorizontalLineMarkup',
 		'ItalicMarkup',
-		'LinkNameCloserMarkup',
+		'LinkMidwayMarkup',
 		'LinkNameOpenerMarkup',
 		'MathClosingBlockMarkup',
 		'MathMarkup',
@@ -86,7 +86,7 @@ MicMicrodownSharedPool class >> initialize [
 	BoldMarkup := '**'. 
 	FigureNameOpenerMarkup := '!['. 
 	ItalicMarkup := '_'. 
-	LinkNameCloserMarkup := ']'. 
+	LinkMidwayMarkup  := ']('. 
 	LinkNameOpenerMarkup := '['.  
 	MathMarkup := '$'. 
 	MonospaceMarkup := '`'. 
@@ -103,7 +103,7 @@ MicMicrodownSharedPool class >> initialize [
 	BoldMarkup .
 	FigureNameOpenerMarkup .  
 	ItalicMarkup .
-	LinkNameCloserMarkup .  
+	LinkMidwayMarkup .  
 	LinkNameOpenerMarkup .  
 	MathMarkup .
 	MonospaceMarkup .  

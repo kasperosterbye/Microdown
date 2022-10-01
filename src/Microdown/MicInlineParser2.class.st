@@ -1,3 +1,6 @@
+"
+Inline parser rewrite
+"
 Class {
 	#name : #MicInlineParser2,
 	#superclass : #Object,
@@ -136,18 +139,57 @@ MicInlineParser2 >> atBeginDelimiter [
 ]
 
 { #category : #parsing }
+MicInlineParser2 >> atOpenOr: delimiter [
+	"return openingDelimiter or nil."
+	| allBeginDelimiters maxOpenerLength peek |
+	allBeginDelimiters := self class allDelimiters select: #isOpener.
+	delimiter ifNotNil: [ allBeginDelimiters at: delimiter markup put: delimiter ].
+	maxOpenerLength := (allBeginDelimiters keys collect: #size )max.
+	peek := inlineStream peek: maxOpenerLength.
+	"try long delimiters before short ones"
+	[ peek isEmpty  ]
+		whileFalse: [ 
+			allBeginDelimiters at: peek ifPresent: [:delim | ^ delim].
+			peek := peek allButLast].
+	^ nil
+]
+
+{ #category : #parsing }
 MicInlineParser2 >> parse: aString [
 	"return a ordered list of children of this node"
-	inlineStream := ReadStream on: aString.
-
+	inlineStream := ReadStream on: (self class escapeEncode: aString).
 	^ self parseEndAt: nil
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseAnchorReference [
+	self shouldBeImplemented.
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseAnnotation [
+	| body arguments extensionBlock tag |
+	MicAnnotationOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
+	body := self class 
+		escapeReescape:  ( self seekTo: MicAnnotationCloserDelimiter markup )
+		except: ''.
+	MicAnnotationCloserDelimiter markup size timesRepeat: [ inlineStream next ].
+	arguments := MicArgumentList
+		            split: body
+		            defaultArg: #annotationKind
+		            defaultValue: 'Me'.
+	tag := arguments defaultValue trimBoth.
+	extensionBlock := MicAnnotationBlock  extensionClassFor: tag.
+	^ extensionBlock new
+		substring: body;
+		arguments: arguments
 ]
 
 { #category : #'block parsing' }
 MicInlineParser2 >> parseBold [
 	| boldChildren |
 	MicBoldDelimiter markup size timesRepeat: [ inlineStream next ].
-	boldChildren := self parseEndAt: MicBoldDelimiter markup.
+	boldChildren := self parseEndAt: MicBoldDelimiter.
 	MicBoldDelimiter markup size timesRepeat: [ inlineStream next ].
 	^ MicBoldFormatBlock new
 		children: boldChildren 
@@ -155,31 +197,65 @@ MicInlineParser2 >> parseBold [
 
 { #category : #parsing }
 MicInlineParser2 >> parseEndAt: delimiter [
-	"return a ordered list of children of this node"
+	"return a ordered list of children of this node, fail if not ending with delimeter"
 	| children |
 	children := OrderedCollection new.
-	[ inlineStream atEnd ]
-		whileFalse: [
-			self seekToDelimiter
-				ifNotNil: [ :string | children add: (MicTextBlock new substring:  string)].
-			(peekedDelimiter isNotNil and: [ peekedDelimiter markup = delimiter ]) ifTrue: [ ^children ].
-			inlineStream atEnd
-				ifFalse: [ 
-					children add: self parseInlineBlock ]
-			 ].
+	[ inlineStream atEnd ] whileFalse: [ 
+		(self seekToOpenenerOr: delimiter) ifNotNil: [ :string | 
+			children add: (self textNodeFor: string) ].
+		(peekedDelimiter = delimiter) ifTrue: [ ^ children ].
+		inlineStream atEnd ifTrue: [ MicParsingError signal ].
+		children add: self parseInlineBlock].
 	^ children
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseFigure [
+	| children url split title|
+	MicFigureNameOpenerDelimiter  markup size timesRepeat: [ inlineStream next ].
+	children := self parseEndAt: MicLinkMidwayDelimiter.
+	url := self parseUrl.
+	split := url splitOnFirst: Character space.
+	title := (split second ifNil: [ '' ]) 
+		trimBoth: [:char | {$". Character space} includes: char].
+	^ MicFigureBlock new
+		url: url;
+		reference: (MicResourceReference fromUri: split first);
+		arguments: (MicArgumentList withString: title);
+		children: children.
+		
+	
+	
 ]
 
 { #category : #parsing }
 MicInlineParser2 >> parseInlineBlock [
-	^ peekedDelimiter parseInline: self
+	| position markup |
+	position := inlineStream position.
+	markup := peekedDelimiter markup.
+	[ ^ peekedDelimiter parseInline: self]
+		on: Error
+		do: [ self seekPast: position markup: markup.
+			 ^ (self textNodeFor: markup)] 
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseInlineMath [
+	| mathBody |
+	MicMathDelimiter markup size timesRepeat: [ inlineStream next ].
+	mathBody := self class 
+		escapeReescape:  ( self seekTo: MicMathDelimiter markup )
+		except: '$'.
+	MicMathDelimiter markup size timesRepeat: [ inlineStream next ].
+	^ MicMathInlineBlock new
+		substring: mathBody.
 ]
 
 { #category : #'block parsing' }
 MicInlineParser2 >> parseItalics [
 	| boldChildren |
 	MicItalicDelimiter markup size timesRepeat: [ inlineStream next ].
-	boldChildren := self parseEndAt: MicItalicDelimiter markup.
+	boldChildren := self parseEndAt: MicItalicDelimiter.
 	MicItalicDelimiter markup size timesRepeat: [ inlineStream next ].
 	^ MicItalicFormatBlock new
 		children: boldChildren 
@@ -187,13 +263,9 @@ MicInlineParser2 >> parseItalics [
 
 { #category : #'block parsing' }
 MicInlineParser2 >> parseLink [
-	| children url link split title|
-	MicLinkNameOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
-	children := self parseEndAt: MicLinkNameCloserDelimiter  markup.
-	MicLinkNameCloserDelimiter markup size timesRepeat: [ inlineStream next ].
-	self seekToDelimiter.
-	peekedDelimiter = MicURLOpenerDelimiter ifFalse: [ 
-		^ MicTextBlock new substring: '>>> Error - Something went wrong in parsing this link <<<' ].
+	| children url split title|
+	MicLinkOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
+	children := self parseEndAt: MicLinkMidwayDelimiter.
 	url := self parseUrl.
 	split := url splitOnFirst: Character space.
 	title := (split second ifNil: [ '' ]) 
@@ -209,12 +281,51 @@ MicInlineParser2 >> parseLink [
 ]
 
 { #category : #'block parsing' }
+MicInlineParser2 >> parseMonospace [
+	| monoBody |
+	MicMonospaceDelimiter markup size timesRepeat: [ inlineStream next ].
+	monoBody := self class 
+		escapeReescape:  ( self seekTo: MicMonospaceDelimiter markup )
+		except: '`'.
+	MicMonospaceDelimiter markup size timesRepeat: [ inlineStream next ].
+	^ MicMonospaceFormatBlock  new
+		substring: monoBody.
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseRaw [
+	| body |
+	MicRawOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
+	body := self class 
+		escapeReescape:  ( self seekTo: MicRawCloserDelimiter markup )
+		except: ''.
+	MicRawCloserDelimiter markup size timesRepeat: [ inlineStream next ].
+	^ MicRawBlock new
+		substring: body.
+]
+
+{ #category : #'block parsing' }
+MicInlineParser2 >> parseStrike [
+	| children |
+	MicStrikeDelimiter markup size timesRepeat: [ inlineStream next ].
+	children := self parseEndAt: MicStrikeDelimiter.
+	MicStrikeDelimiter markup size timesRepeat: [ inlineStream next ].
+	^ MicStrikeFormatBlock new
+		children: children 
+]
+
+{ #category : #'block parsing' }
 MicInlineParser2 >> parseUrl [
 	| body |
-	MicURLOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
+	MicLinkMidwayDelimiter markup size timesRepeat: [ inlineStream next ].
 	body := self seekTo: MicURLCloserDelimiter markup.
 	MicURLCloserDelimiter markup size timesRepeat: [ inlineStream next ].
 	^ body
+]
+
+{ #category : #parsing }
+MicInlineParser2 >> seekPast: position markup: markup [
+	inlineStream position: position + markup size
 ]
 
 { #category : #parsing }
@@ -242,4 +353,22 @@ MicInlineParser2 >> seekToDelimiter [
 	^ buffer contents
 	
 	
+]
+
+{ #category : #parsing }
+MicInlineParser2 >> seekToOpenenerOr: delimiter [
+	"read inlineStream upto first delimiter"
+	| buffer|
+	buffer := WriteStream on: ''.
+	peekedDelimiter := nil.
+	[ inlineStream atEnd or: [(peekedDelimiter := self atOpenOr: delimiter ) isNotNil ]  ]
+		whileFalse: [ buffer nextPut: inlineStream next ].
+	^ buffer contents
+	
+	
+]
+
+{ #category : #'node creation' }
+MicInlineParser2 >> textNodeFor: string [
+	^ MicTextBlock new substring: (self class escapeReescape: string except: '').
 ]

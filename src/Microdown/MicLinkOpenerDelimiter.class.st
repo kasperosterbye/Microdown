@@ -2,32 +2,32 @@
 I am the opener delimiter for link name.
 "
 Class {
-	#name : #MicLinkNameOpenerDelimiter,
+	#name : #MicLinkOpenerDelimiter,
 	#superclass : #MicAbstractDelimiter,
 	#category : #'Microdown-Parser'
 }
 
 { #category : #accessing }
-MicLinkNameOpenerDelimiter class >> associatedInlineBlock [
+MicLinkOpenerDelimiter class >> associatedInlineBlock [
 	^ MicLinkBlock 
 ]
 
 { #category : #accessing }
-MicLinkNameOpenerDelimiter class >> isCloser [
+MicLinkOpenerDelimiter class >> isCloser [
 	^ false
 ]
 
 { #category : #accessing }
-MicLinkNameOpenerDelimiter class >> isOpener [
+MicLinkOpenerDelimiter class >> isOpener [
 	^ true
 ]
 
 { #category : #accessing }
-MicLinkNameOpenerDelimiter class >> markup [
+MicLinkOpenerDelimiter class >> markup [
 	^ LinkNameOpenerMarkup
 ]
 
 { #category : #parsing }
-MicLinkNameOpenerDelimiter class >> parseInline: aMicInlineParser [
+MicLinkOpenerDelimiter class >> parseInline: aMicInlineParser [
 	^ aMicInlineParser parseLink
 ]

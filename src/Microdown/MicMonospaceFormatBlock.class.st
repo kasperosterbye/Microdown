@@ -45,3 +45,13 @@ MicMonospaceFormatBlock >> openingDelimiter [
 
  	^ MonospaceMarkup
 ]
+
+{ #category : #printing }
+MicMonospaceFormatBlock >> printOn: aStream [
+
+	self printWithoutConventions: aStream.
+	aStream 
+		nextPut: $(;
+		nextPutAll: substring;
+		nextPut: $)
+]

@@ -25,6 +25,11 @@ MicAnnotationOpenerDelimiter class >> markup [
 	^ AnnotationOpenerMarkup
 ]
 
+{ #category : #parsing }
+MicAnnotationOpenerDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseAnnotation
+]
+
 { #category : #accessing }
 MicAnnotationOpenerDelimiter class >> type [
 	^ #annotation

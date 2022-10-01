@@ -36,6 +36,11 @@ MicFigureNameOpenerDelimiter class >> markup [
 	^ FigureNameOpenerMarkup
 ]
 
+{ #category : #parsing }
+MicFigureNameOpenerDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseFigure
+]
+
 { #category : #accessing }
 MicFigureNameOpenerDelimiter class >> type [
 	^ #figure

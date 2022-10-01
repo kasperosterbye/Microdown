@@ -28,6 +28,11 @@ MicMathDelimiter class >> markup [
 	^ MathMarkup
 ]
 
+{ #category : #parsing }
+MicMathDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseInlineMath
+]
+
 { #category : #accessing }
 MicMathDelimiter class >> type [
 	^ #math

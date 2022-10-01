@@ -27,6 +27,11 @@ MicMonospaceDelimiter class >> markup [
 	^ MonospaceMarkup
 ]
 
+{ #category : #parsing }
+MicMonospaceDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseMonospace 
+]
+
 { #category : #accessing }
 MicMonospaceDelimiter class >> type [
 	^ #monospace

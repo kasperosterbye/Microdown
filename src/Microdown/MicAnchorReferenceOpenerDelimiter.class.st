@@ -31,6 +31,11 @@ MicAnchorReferenceOpenerDelimiter class >> markup [
 	^ AnchorReferenceOpenerMarkup
 ]
 
+{ #category : #parsing }
+MicAnchorReferenceOpenerDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseAnchorReference
+]
+
 { #category : #accessing }
 MicAnchorReferenceOpenerDelimiter class >> type [
 	^ #anchorReference

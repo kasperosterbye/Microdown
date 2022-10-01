@@ -27,6 +27,11 @@ MicRawOpenerDelimiter class >> markup [
 	^ RawOpenerMarkup
 ]
 
+{ #category : #parsing }
+MicRawOpenerDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseRaw
+]
+
 { #category : #accessing }
 MicRawOpenerDelimiter class >> type [
 	^ #raw

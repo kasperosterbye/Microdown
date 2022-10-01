@@ -27,6 +27,11 @@ MicStrikeDelimiter class >> markup [
 	^ StrikeMarkup
 ]
 
+{ #category : #parsing }
+MicStrikeDelimiter class >> parseInline: aMicInlineParser [
+	^ aMicInlineParser parseStrike 
+]
+
 { #category : #accessing }
 MicStrikeDelimiter class >> type [
 	^ #strike

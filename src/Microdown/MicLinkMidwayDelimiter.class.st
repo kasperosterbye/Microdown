@@ -2,27 +2,27 @@
 I am the closer delimiter for link name.
 "
 Class {
-	#name : #MicLinkNameCloserDelimiter,
+	#name : #MicLinkMidwayDelimiter,
 	#superclass : #MicAbstractDelimiter,
 	#category : #'Microdown-Parser'
 }
 
 { #category : #accessing }
-MicLinkNameCloserDelimiter class >> associatedInlineBlock [
+MicLinkMidwayDelimiter class >> associatedInlineBlock [
 	^ nil
 ]
 
 { #category : #accessing }
-MicLinkNameCloserDelimiter class >> isCloser [
-	^ true
-]
-
-{ #category : #accessing }
-MicLinkNameCloserDelimiter class >> isOpener [
+MicLinkMidwayDelimiter class >> isCloser [
 	^ false
 ]
 
 { #category : #accessing }
-MicLinkNameCloserDelimiter class >> markup [
+MicLinkMidwayDelimiter class >> isOpener [
+	^ false
+]
+
+{ #category : #accessing }
+MicLinkMidwayDelimiter class >> markup [
 	^ LinkNameCloserMarkup
 ]
