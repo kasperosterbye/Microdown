@@ -12,7 +12,7 @@ MicFigureBlockTest >> setUp [
 
 	super setUp.
 	parser := self parser.
-	splitterClass := MicInlineParser 
+	splitterClass := MicInlineParser2
 ]
 
 { #category : #tests }
@@ -64,7 +64,7 @@ MicFigureBlockTest >> testArgumentAtIfPresent [
 MicFigureBlockTest >> testCaption [
 	| figure |
 	figure := (splitterClass new parse: '![caption with space and dot...](http://www.Pharo.ORG)') first.
-	self assert: figure caption equals: 'caption with space and dot...'
+	self assert: figure children first substring equals: 'caption with space and dot...'
 	
 	
 ]
@@ -103,6 +103,8 @@ MicFigureBlockTest >> testIsNotRelativeFilePathWithUrl [
 { #category : #tests }
 MicFigureBlockTest >> testPrintOn [
 	| figure |
+	self skip.
+	"The printon does not print the formatted alt, but merely what might have been stored"
 	figure := (splitterClass new parse: '![caption](http://www.Pharo.ORG)') first.
 	self assert: figure asString equals: '![caption](http://www.Pharo.ORG)'
 	
@@ -112,6 +114,7 @@ MicFigureBlockTest >> testPrintOn [
 { #category : #tests }
 MicFigureBlockTest >> testPrintOnWithParameters [
 	| figure |
+	self skip. "The syntax for parameters have changes, and this is not valid"
 	figure := (splitterClass new parse: '![caption](http://anURL.org?label=1&title=testFigure)') first.
 	self assert: figure printString equals: '![caption](http://anURL.org?label=1&title=testFigure)'
 ]

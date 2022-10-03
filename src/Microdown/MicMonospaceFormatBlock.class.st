@@ -47,11 +47,16 @@ MicMonospaceFormatBlock >> openingDelimiter [
 ]
 
 { #category : #printing }
-MicMonospaceFormatBlock >> printOn: aStream [
+MicMonospaceFormatBlock >> printOn_old: aStream [
 
 	self printWithoutConventions: aStream.
 	aStream 
 		nextPut: $(;
-		nextPutAll: substring;
+		nextPutAll: children first substring;
 		nextPut: $)
+]
+
+{ #category : #accessing }
+MicMonospaceFormatBlock >> substring [
+	^ substring
 ]

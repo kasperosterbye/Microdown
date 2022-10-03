@@ -13,10 +13,12 @@ Class {
 	#name : #MicInlineElement,
 	#superclass : #MicElement,
 	#instVars : [
-		'start',
-		'end',
+		'start_obs',
+		'end_obs',
+		'substring',
 		'children',
-		'substring'
+		'end',
+		'start'
 	],
 	#category : #'Microdown-ModelInline'
 }
@@ -80,15 +82,9 @@ MicInlineElement >> end: anInteger [
 	end := anInteger
 ]
 
-{ #category : #operations }
-MicInlineElement >> escapeCharacter [
-	^ '\'
-]
-
 { #category : #initialization }
 MicInlineElement >> initialize [
-
-	super initialize. 
+	super initialize.
 	children := #().
 	
 ]
@@ -102,11 +98,6 @@ MicInlineElement >> isOnlyChild [
 MicInlineElement >> kind [
 	"we are deprecating the state"
 	^ self error
-]
-
-{ #category : #accessing }
-MicInlineElement >> literal [
-	^ substring copyFrom: start to: end. 
 ]
 
 { #category : #accessing }
@@ -172,7 +163,9 @@ MicInlineElement >> start: anInteger [
 
 { #category : #obsolete }
 MicInlineElement >> substring [
-	^ substring
+	"I reconstruc my substring"
+	self substring ifNotNil: [ ^ substring  ].
+	^ (children collect: #substring) joinUsing: ''
 ]
 
 { #category : #obsolete }

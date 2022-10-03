@@ -6,8 +6,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'inlineStream',
-		'peekedDelimiter',
-		'escapeStack'
+		'peekedDelimiter'
 	],
 	#classVars : [
 		'AllDelimiters',
@@ -142,30 +141,45 @@ MicInlineParser2 >> atOpenerOr: delimiter [
 
 { #category : #'parsing-internal' }
 MicInlineParser2 >> escapeDecode: aString [
-	^ self class escapeReescape: aString except: escapeStack
+	^ self class escapeDecode: aString
 ]
 
 { #category : #'parsing-internal' }
-MicInlineParser2 >> escapePop [
-	escapeStack removeLast
-]
-
-{ #category : #'parsing-internal' }
-MicInlineParser2 >> escapePush: markup [
-	escapeStack addLast: markup first
+MicInlineParser2 >> mergeTextChildren: children [
+	| mergedChildren mergedText |
+	mergedChildren := OrderedCollection new.
+	children ifEmpty: [ ^ children  ].
+	mergedText := WriteStream on: ''.
+	children do: [ :child |
+		child class = MicTextBlock 
+			ifTrue: [ mergedText nextPutAll: child substring ]
+			ifFalse: [ mergedText contents
+				ifNotEmpty: [ 
+					mergedChildren add: (MicTextBlock new substring: mergedText contents)].
+				mergedText := WriteStream on: ''. 
+				mergedChildren add: child ]
+		 ].
+	mergedText contents
+				ifNotEmpty: [ mergedChildren add: (MicTextBlock new substring: mergedText contents)].
+	^ mergedChildren
 ]
 
 { #category : #'parsing public' }
 MicInlineParser2 >> parse: aString [
 	"return a ordered collection of children by parsing aString"
 	inlineStream := ReadStream on: (self class escapeEncode: aString).
-	escapeStack := OrderedCollection new.
 	^ self parseEndAt: nil
 ]
 
 { #category : #'block parsing' }
 MicInlineParser2 >> parseAnchorReference [
-	self shouldBeImplemented.
+	| body |
+	MicAnchorReferenceOpenerDelimiter markup size timesRepeat: [ inlineStream next ].
+	1halt.
+	body := self escapeDecode: (self seekToCloser: MicAnchorReferenceCloserDelimiter).
+	MicAnchorReferenceCloserDelimiter markup size timesRepeat: [ inlineStream next ].
+	^ MicAnchorReferenceBlock new
+		substring: body
 ]
 
 { #category : #'block parsing' }
@@ -205,16 +219,17 @@ MicInlineParser2 >> parseEndAt: endDelimiter [
 	[ inlineStream atEnd ] whileFalse: [
 		"Check for plain text node, and find nested opener or  if any"
 		(self seekToOpenenerOr: endDelimiter) 
-			ifNotNil: [ :string | children add: (self textNodeFor: string) ].
+			ifNotEmpty: [ :string | children add: (self textNodeFor: string) ].
 		"if the delimiter was the end delimiter we are done"
 		(peekedDelimiter = endDelimiter) 
-			ifTrue: [ ^ children ].
+			ifTrue: [ ^ children asArray].
 		"If we reached the end without finding endDelimiter, signal an error"
 		inlineStream atEnd 
 			ifTrue: [ MicParsingError signal ].
 		"we found a new opener, and parse nestedBlock"
 		children add: self parseNestedBlock].
-	^ children
+	children := self mergeTextChildren: children.
+	^ children asArray 
 ]
 
 { #category : #'block parsing' }
@@ -273,7 +288,7 @@ MicInlineParser2 >> parseInlineMath [
 		except: '$'.
 	MicMathDelimiter markup size timesRepeat: [ inlineStream next ].
 	^ MicMathInlineBlock new
-		substring: mathBody.
+		children: {MicTextBlock new substring: mathBody}.
 ]
 
 { #category : #'block parsing' }
@@ -314,7 +329,7 @@ MicInlineParser2 >> parseMonospace [
 		except: '`'.
 	MicMonospaceDelimiter markup size timesRepeat: [ inlineStream next ].
 	^ MicMonospaceFormatBlock  new
-		substring: monoBody.
+		children: {MicTextBlock new substring: monoBody}.
 ]
 
 { #category : #'parsing-internal' }
@@ -323,7 +338,6 @@ MicInlineParser2 >> parseNestedBlock [
 	| position markup block |
 	position := inlineStream position.
 	markup := peekedDelimiter markup.
-	self escapePush: markup.
 	"parseInline: is first step of a double dispatch pattern. 
 	Second step brings back to methods in block parsing protocol"
 	[ block := peekedDelimiter parseInline: self]
@@ -331,7 +345,6 @@ MicInlineParser2 >> parseNestedBlock [
 		on: Error
 		do: [ inlineStream position: position + markup size.
 			 block := (self textNodeFor: markup)].
-	self escapePop.
 	block children do: [:ch | ch parent: block].
 	^ block
 ]
@@ -369,14 +382,17 @@ MicInlineParser2 >> parseUrl [
 
 { #category : #'parsing-internal' }
 MicInlineParser2 >> seekToCloser: closingMarkup [
-	"read inlineStream upto first delimiter"
+	"read inlineStream upto delimiter, nil if not found"
 	| buffer peekLength |
 	buffer := WriteStream on: ''.
 	peekLength := closingMarkup size.
 	peekedDelimiter := nil.
-	[ inlineStream atEnd or: [(inlineStream peek: peekLength) = closingMarkup ]  ]
+	[ inlineStream atEnd or: [(inlineStream peek: peekLength) = closingMarkup markup]  ]
 		whileFalse: [ buffer nextPut: inlineStream next ].
-	^ buffer contents
+	inlineStream atEnd
+		ifFalse: [^ buffer contents].
+	MicParsingError signal
+	
 	
 	
 ]

@@ -12,7 +12,7 @@ Class {
 
 { #category : #accessing }
 MicInlineParserTest >> splitter [
-	^ MicInlineParser new
+	^ MicInlineParser2 new
 ]
 
 { #category : #'tests - anchors' }

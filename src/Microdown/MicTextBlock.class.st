@@ -25,3 +25,8 @@ MicTextBlock >> printOn: aStream [
 	self print: self substring surroundedOn: aStream.
 
 ]
+
+{ #category : #accessing }
+MicTextBlock >> substring [
+	^ substring
+]

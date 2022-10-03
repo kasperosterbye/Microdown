@@ -62,3 +62,8 @@ MicMathInlineBlock >> openingDelimiter [
 
  	^ MathMarkup
 ]
+
+{ #category : #accessing }
+MicMathInlineBlock >> substring [
+	^ substring
+]

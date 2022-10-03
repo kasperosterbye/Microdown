@@ -553,7 +553,7 @@ MicRichTextComposer >> visitMath:  aMicMathEnvironment [
 { #category : #'visiting - document' }
 MicRichTextComposer >> visitMathInline: aMicMathInline [ 
 	| aString  |
-	aString := aMicMathInline substring .
+	aString := aMicMathInline children first substring .
    aString ifEmpty: [^ self].
 	canvas << (self latexFor: aString onError: [ '$ - LATEX ERROR - $' asText ])
 ]

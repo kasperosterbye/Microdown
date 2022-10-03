@@ -1,57 +1,52 @@
-"
-I represent a reference to a section, figure, environment. I follow the pattern `*@`, label, `@*`
-
-```
-See *@fig1@*
-```
-
-"
 Class {
-	#name : #MicAnchorReferenceBlock,
+	#name : #MicAnchorReferenceBlockNew,
 	#superclass : #MicInlineElement,
+	#instVars : [
+		'reference'
+	],
 	#category : #'Microdown-ModelInline'
 }
 
 { #category : #testing }
-MicAnchorReferenceBlock class >> isEvaluated [
+MicAnchorReferenceBlockNew class >> isEvaluated [
 	^ false
 ]
 
 { #category : #visiting }
-MicAnchorReferenceBlock >> accept: aVisitor [
+MicAnchorReferenceBlockNew >> accept: aVisitor [
  	^ aVisitor visitAnchorReference: self
 ]
 
 { #category : #visiting }
-MicAnchorReferenceBlock >> closingDelimiter [
+MicAnchorReferenceBlockNew >> closingDelimiter [
 
  	^ AnchorReferenceCloserMarkup
 ]
 
 { #category : #initialization }
-MicAnchorReferenceBlock >> kind [
+MicAnchorReferenceBlockNew >> kind [
 
 	^ #anchorReference
 ]
 
 { #category : #visiting }
-MicAnchorReferenceBlock >> openingDelimiter [
+MicAnchorReferenceBlockNew >> openingDelimiter [
 
  	^ AnchorReferenceOpenerMarkup
 ]
 
 { #category : #accessing }
-MicAnchorReferenceBlock >> reference [
+MicAnchorReferenceBlockNew >> reference [
 	^ reference
 ]
 
 { #category : #accessing }
-MicAnchorReferenceBlock >> reference: aReference [
+MicAnchorReferenceBlockNew >> reference: aReference [
 	reference := aReference
 ]
 
 { #category : #visiting }
-MicAnchorReferenceBlock >> referenceAsHTML [	
+MicAnchorReferenceBlockNew >> referenceAsHTML [	
 	| ref |
 	self flag: #todo.
 	ref := self reference.

@@ -24,5 +24,5 @@ MicLinkMidwayDelimiter class >> isOpener [
 
 { #category : #accessing }
 MicLinkMidwayDelimiter class >> markup [
-	^ LinkNameCloserMarkup
+	^ LinkMidwayMarkup
 ]
